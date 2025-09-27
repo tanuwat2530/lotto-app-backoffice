@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../styles/th-calendar-page-style.css'; // Import the dedicated CSS file
 
 // --- Constants ---
@@ -8,6 +8,10 @@ const THAI_MONTHS = Array.from({ length: 12 }, (_, i) => {
     calendar: 'buddhist' 
   }).format(new Date(2025, i, 1)); 
 });
+
+// Using a placeholder string for the API URL here.
+// In your environment, you should use the line you provided:
+ const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
 
 // --- Helper Functions ---
 
@@ -100,7 +104,7 @@ const ThaiCalendarApp = () => {
   };
 
  // --- SUBMIT FUNCTIONALITY ---
-const handleSubmit = () => {
+const handleSubmit = async () => { // 👈 FIX: Declared as async
     // 1. Construct the final Date object using the selected date and time
     const selectedDateTime = new Date(
         currentDate.getFullYear(), 
@@ -111,8 +115,7 @@ const handleSubmit = () => {
     );
     
     // --- TIMESTAMP CALCULATION ---
-    const timestampMs = selectedDateTime.getTime(); // Timestamp in milliseconds
-    const timestampSec = Math.floor(timestampMs / 1000); // Timestamp in seconds
+    const timestampSec = Math.floor(selectedDateTime.getTime() / 1000); // Timestamp in seconds
     // ----------------------------
 
     // 2. Format the DATE using Thai localization (B.E.)
@@ -133,18 +136,58 @@ const handleSubmit = () => {
     });
     const formattedTime = timeFormatter.format(selectedDateTime);
 
-    // 4. Display the alert with separate date, time, and timestamp
-    alert(`
-        วันที่และเวลาที่เลือกสำหรับออกรางวัล:
-        
-        วันที่ (Date): ${formattedDate}
-        เวลา (Time): ${formattedTime} น.
-        
-        --- Timestamp (Unix Epoch) ---
-        Milliseconds: ${timestampMs}
-        Seconds: ${timestampSec}
-    `);
+    // 4. API Call Setup
+    const ENDPOINT = `${apiUrl}/bff-lotto-app/backoffice/th-calendar`;
 
+    const dataPayload = {
+        date: formattedDate,
+        time: formattedTime,
+        timestamp: timestampSec,
+    };
+
+    try {
+      console.log('Sending data to API:', ENDPOINT, dataPayload);
+      
+      const response = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authorization headers here if needed, e.g., 'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(dataPayload),
+      });
+
+      if (!response.ok) {
+        // If the response is not OK (4xx, 5xx), try to extract detailed error message
+        let errorText = await response.text();
+        try {
+            const errorJson = JSON.parse(errorText);
+            errorText = errorJson.message || errorText;
+        } catch (jsonError) {
+            // Ignore if it's not JSON
+        }
+        throw new Error(`HTTP Error Status ${response.status}: ${errorText}`);
+      }
+       
+      // Successfully sent data (200-299 status)
+      let responseJson = {};
+      try {
+        // Try to parse JSON response for success message
+        responseJson = await response.json();
+      } catch(e) {
+        // Handle successful response with no JSON body (e.g., 204 No Content or plain text success)
+        responseJson.message = "Successfully saved date/time.";
+      }
+
+      // Success alert
+      alert(`✅ บันทึกสำเร็จ!\n\nวันที่: ${formattedDate}\nเวลา: ${formattedTime} น.\nTimestamp: ${timestampSec}\nResponse: ${JSON.stringify(responseJson, null, 2)}`);
+      
+    } catch (err) {
+      // Catch network errors (CORS, offline) or errors thrown from the response handling
+      console.error("Add calendar failed:", err);
+       alert(`❌ ผิดพลาด: ไม่สามารถบันทึกข้อมูลได้\n\nรายละเอียด: ${err.message || "Unknown error occurred"}`);
+    } 
+  
 };
 // ----------------------------- 
 
