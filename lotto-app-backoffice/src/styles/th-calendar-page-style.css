@@ -1,0 +1,206 @@
+/* --- Global Container and Layout --- */
+.thai-calendar-app {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f2f5;
+    padding: 20px;
+    font-family: 'Tahoma', 'Saraban', sans-serif;
+}
+
+.calendar-container {
+    width: 100%;
+    max-width: 450px;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+/* --- Header and Navigation --- */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #0056b3;
+}
+
+.calendar-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    letter-spacing: 0.5px;
+}
+
+.nav-button {
+    background: none;
+    border: 1px solid #ccc;
+    color: #007bff;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-button:hover {
+    background-color: #e6f0ff;
+    border-color: #007bff;
+}
+
+/* --- Day Headers --- */
+.day-headers, .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+}
+
+.day-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    padding: 5px 0;
+}
+
+.sunday-name {
+    color: #cc0000; /* Sunday is traditionally red */
+}
+
+/* --- Calendar Grid Cells --- */
+.calendar-grid {
+    margin-top: 10px;
+}
+
+.calendar-day {
+    padding: 10px 5px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    position: relative;
+    cursor: default;
+    transition: background-color 0.1s;
+}
+
+.calendar-day:not(.empty):not(.today):not(.weekend):hover {
+    background-color: #f0f0f0;
+}
+
+.calendar-day.empty {
+    visibility: hidden;
+}
+
+/* Day States */
+.calendar-day.today {
+    background-color: #007bff;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+}
+
+.calendar-day.weekend {
+    color: #990000; /* Weekend days (Sat/Sun) in red */
+}
+
+/* --- Footer --- */
+.calendar-footer {
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+.calendar-footer .note {
+    font-size: 12px;
+    color: #999;
+}
+
+/* --- Time Picker Section --- */
+.time-picker-controls {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.time-picker-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.time-select-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.time-select {
+    padding: 8px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    font-weight: bold;
+    text-align: center;
+    min-width: 70px;
+    appearance: none; /* Remove default browser styling */
+}
+
+.time-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.time-separator {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* --- Added class for Selected Day --- */
+.calendar-day.selected-day {
+    background-color: #00aaff; /* A light blue to show selection */
+    color: white;
+    font-weight: 700;
+    border: 2px solid #0056b3;
+}
+
+/* --- Footer update for clarity --- */
+.selected-date-display {
+    font-size: 16px;
+    font-weight: 600;
+    color: #007bff;
+    margin-top: 10px;
+}
+
+/* Submit button styling */
+.submit-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
