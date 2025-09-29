@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import '../styles/th-calendar-page-style.css'; // Import the dedicated CSS file
 
+
+const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
+const adminUser = process.env.NEXT_PUBLIC_ADMIN_USER; 
+const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS; 
 // --- Constants ---
 const THAI_MONTHS = Array.from({ length: 12 }, (_, i) => {
   return new Intl.DateTimeFormat('th-TH', { 
@@ -8,13 +12,10 @@ const THAI_MONTHS = Array.from({ length: 12 }, (_, i) => {
     calendar: 'buddhist' 
   }).format(new Date(2025, i, 1)); 
 });
-
 // Using a placeholder string for the API URL here.
 // In your environment, you should use the line you provided:
- const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
-
+ 
 // --- Helper Functions ---
-
 /**
  * Formats a Date object to get the Thai month and Buddhist Era year.
  */
@@ -25,7 +26,6 @@ const getThaiMonthYear = (date) => {
     calendar: 'buddhist',
   }).format(date);
 };
-
 /**
  * Gets the Thai short names for the days of the week (อา. - ส.).
  */
@@ -36,7 +36,6 @@ const getThaiDayNames = () => {
     return formatter.format(day);
   });
 };
-
 // --- Renderer for Time Options ---
 const renderTimeOptions = (limit) => {
   const options = [];
@@ -51,18 +50,18 @@ const renderTimeOptions = (limit) => {
   return options;
 };
 
-// --- Main Calendar Component ---
 
+// --- Main Calendar Component ---
 const ThaiCalendarApp = () => {
   const initialDate = new Date();
   
   // Current date in C.E. is used for calendar logic
   const [currentDate, setCurrentDate] = useState(initialDate);
-  
+   const [isLoading, setIsLoading] = useState(true);
   // Time state is separate to handle time selection independently
   const [selectedHour, setSelectedHour] = useState(initialDate.getHours().toString().padStart(2, '0'));
   const [selectedMinute, setSelectedMinute] = useState(initialDate.getMinutes().toString().padStart(2, '0'));
-
+  const [scheduleData,setScheduleData] =  useState([]); 
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -85,6 +84,90 @@ const ThaiCalendarApp = () => {
     setCurrentDate(prevDate => new Date(prevDate.getFullYear(), prevDate.getMonth() - 1, 1));
   };
 
+// --- FETCH SCHEDULE DATA ON MOUNT (FIXED) ---
+  useEffect(() => {
+
+      let user = sessionStorage.getItem("admin_user");
+      let pass = sessionStorage.getItem("admin_pass");
+      if(user !== adminUser || pass !== adminPass)
+      {
+        window.location.replace('/admin-login')
+      }
+
+
+    // FIX: Define an inner async function and call it immediately.
+    const fetchSchedule = async () => {
+      setIsLoading(true);
+      const scheduleAPI = `${apiUrl}/bff-lotto-app/backoffice/th-schedule`;
+     try {
+        // Use POST only if the backend requires it, otherwise GET is typical for fetches
+        const response = await fetch(scheduleAPI,{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            // Note: Sending an empty body for a POST that expects data might be rejected by the server
+        }); 
+        if (!response.ok) {
+          let errorText = await response.text();
+          try {
+              const errorJson = JSON.parse(errorText);
+              errorText = errorJson.message || errorText;
+          } catch (jsonError) {
+              // Ignore if it's not JSON
+          }
+          // FIX: Throw error to exit the try block and move to catch
+          throw new Error(`HTTP Error Status ${response.status}: ${errorText}`); 
+        }
+
+      // FIX: The redundant 'if (!response.ok)' block was removed to prevent stream reading error.
+      // Now, if response.ok is true, we proceed to read JSON.
+      let responseJson = {};
+      try {
+        responseJson = await response.json();
+        
+        let finalData = responseJson;
+
+        // NEW FIX: Check for the unexpected nested JSON string format
+        if (typeof responseJson.response === 'string') {
+          try {
+            // Attempt to parse the nested string
+            finalData = JSON.parse(responseJson.response);
+            
+          } catch (e) {
+            console.warn("Failed to parse nested response string:", e);
+          }
+        }
+
+        // FIX: Check for the 'data' field expected from the Go service (code: "200", data: [...])
+        if (finalData.code === "200" && Array.isArray(finalData.data)) {
+            setScheduleData(finalData.data);
+        } else {
+            console.warn('API response structure unexpected (missing code 200 or array data):', finalData);
+            setScheduleData([]); 
+        }
+
+      } catch(e) {
+        // Handle successful response with no JSON body (e.g., 204 No Content)
+        console.warn("Successful response but failed to parse JSON:", e);
+        setScheduleData([]);
+      }
+     
+      } catch (err) {
+        console.error("Fetch schedule failed:", err);
+        // Display error using the custom modal
+        setSubmissionStatus({
+            show: true,
+            type: 'error',
+            message: `ไม่สามารถโหลดข้อมูลได้: ${err.message || "Unknown error occurred"}`,
+            data: null,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    fetchSchedule(); 
+  }, []); // Empty dependency array means this runs only on mount
+
   const handleNextMonth = () => {
     setCurrentDate(prevDate => new Date(prevDate.getFullYear(), prevDate.getMonth() + 1, 1));
   };
@@ -104,7 +187,7 @@ const ThaiCalendarApp = () => {
   };
 
  // --- SUBMIT FUNCTIONALITY ---
-const handleSubmit = async () => { // 👈 FIX: Declared as async
+  const handleSubmit = async () => { // 👈 FIX: Declared as async
     // 1. Construct the final Date object using the selected date and time
     const selectedDateTime = new Date(
         currentDate.getFullYear(), 
@@ -166,7 +249,7 @@ const handleSubmit = async () => { // 👈 FIX: Declared as async
         } catch (jsonError) {
             // Ignore if it's not JSON
         }
-        throw new Error(`HTTP Error Status ${response.status}: ${errorText}`);
+        console.log(`HTTP Error Status ${response.status}: ${errorText}`);
       }
        
       // Successfully sent data (200-299 status)
@@ -183,12 +266,15 @@ const handleSubmit = async () => { // 👈 FIX: Declared as async
       alert(`✅ บันทึกสำเร็จ!\n\nวันที่: ${formattedDate}\nเวลา: ${formattedTime} น.\nTimestamp: ${timestampSec}\nResponse: ${JSON.stringify(responseJson, null, 2)}`);
       
     } catch (err) {
-      // Catch network errors (CORS, offline) or errors thrown from the response handling
+
       console.error("Add calendar failed:", err);
        alert(`❌ ผิดพลาด: ไม่สามารถบันทึกข้อมูลได้\n\nรายละเอียด: ${err.message || "Unknown error occurred"}`);
     } 
+    finally{
+      window.location.reload()
+    }
   
-};
+  };
 // ----------------------------- 
 
   const renderCalendarDays = () => {
@@ -239,6 +325,15 @@ const handleSubmit = async () => { // 👈 FIX: Declared as async
 
   const thaiDayNames = getThaiDayNames();
 
+// --- New Logic for Filtering Past Events ---
+  const currentTimestampSec = Math.floor(Date.now() / 1000);
+
+  const pastScheduleData = scheduleData.filter(item => {
+    // We assume 'item.timestamp' exists in the fetched data and is in seconds.
+    // We use parseInt just in case it comes back as a string.
+    return item.timestamp && parseInt(item.timestamp, 10) >= currentTimestampSec;
+  });
+  // ------------------------------------------
   return (
     
     <div className="thai-calendar-app">
@@ -319,7 +414,39 @@ const handleSubmit = async () => { // 👈 FIX: Declared as async
             </button>
             {/* ----------------------- */}
         </div>
+        <br/>
+         {/* --- Display Loaded Schedule Data --- */}
+            <div>
+                <h4>ตารางเวลาที่บันทึกไว้</h4>
+                {isLoading && <p className="loading-text">...กำลังโหลดข้อมูล...</p>}
+                {!isLoading && pastScheduleData.length === 0 && <p className="loading-text">ไม่มีตารางเวลาในอดีต หรือข้อมูลไม่มี Timestamp</p>}
+                
+                {!isLoading && pastScheduleData.map((item, index) => {
+                    const content = (
+                        <>
+                            <strong>งวดที่ : </strong> {item.id} ,  
+                            <strong> วันที่ : </strong> {item.date} ,
+                            <strong> เวลาปิด : </strong> {item.time} 
+                        </>
+                    );
+                    
+                    const className = `data-item ${index === 0 ? 'highlighted' : ''}`;
+
+                    return (
+                        <div key={index} className={className}>
+                            {/* Conditional Rendering: H1 for index 0, P for others */}
+                            {index === 0 ? (
+                                <b><u>{content}</u></b>
+                            ) : (
+                                <p>{content}</p>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+            {/* -------------------------------------- */}
       </div>
+      
     </div>
   );
 };

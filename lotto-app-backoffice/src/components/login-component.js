@@ -3,6 +3,9 @@ import '../styles/login-page-style.css'; // Import the CSS file
 
 // Component now accepts a prop: onLoginSuccess
 const LoginPage = ({ onLoginSuccess }) => {
+ const adminUser = process.env.NEXT_PUBLIC_ADMIN_USER; 
+ const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS; 
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,10 +23,14 @@ const LoginPage = ({ onLoginSuccess }) => {
     console.log('Attempting to log in with:', { username, password });
 
     // 💡 Replace this sample logic with your Express API call later!
-    if (username === 'user' && password === 'password') {
+    if (username === adminUser && password === adminPass) {
       // 🚀 SUCCESS: Call the function passed from the parent Next.js page
+      sessionStorage.setItem("admin_user", username);
+       sessionStorage.setItem("admin_pass", password);
       if (onLoginSuccess) {
+        
         onLoginSuccess();
+        
       }
     } else {
       setError('Invalid username or password.');
