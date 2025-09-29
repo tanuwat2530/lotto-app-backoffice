@@ -59,8 +59,8 @@ const ThaiCalendarApp = () => {
   const [currentDate, setCurrentDate] = useState(initialDate);
    const [isLoading, setIsLoading] = useState(true);
   // Time state is separate to handle time selection independently
-  const [selectedHour, setSelectedHour] = useState(initialDate.getHours().toString().padStart(2, '0'));
-  const [selectedMinute, setSelectedMinute] = useState(initialDate.getMinutes().toString().padStart(2, '0'));
+  const [selectedHour, setSelectedHour] = useState('13');
+  const [selectedMinute, setSelectedMinute] = useState('40');
   const [scheduleData,setScheduleData] =  useState([]); 
 
   const year = currentDate.getFullYear();
@@ -373,7 +373,7 @@ const ThaiCalendarApp = () => {
         
         {/* --- Time Picker --- */}
         <div className="time-picker-controls">
-            <label className="time-picker-label">เลือกเวลา (24hr):</label>
+            <label className="time-picker-label">เวลาปิดรับ</label>
             <div className="time-select-group">
                 {/* Hour Dropdown */}
                 <select
@@ -402,7 +402,7 @@ const ThaiCalendarApp = () => {
         {/* Footer Info */}
         <div className="calendar-footer">
              <p className="selected-date-display">
-                วัน-เวลาที่เลือก: {currentDate.getDate()} {THAI_MONTHS[currentDate.getMonth()]} พ.ศ. {currentBEYear} | {selectedHour}:{selectedMinute} น.
+                งวด {currentDate.getDate()} {THAI_MONTHS[currentDate.getMonth()]} พ.ศ. {currentBEYear} เวลาปิดรับ {selectedHour}:{selectedMinute} น.
             </p>
             
             {/* --- SUBMIT BUTTON --- */}
@@ -417,7 +417,7 @@ const ThaiCalendarApp = () => {
         <br/>
          {/* --- Display Loaded Schedule Data --- */}
             <div>
-                <h4>ตารางเวลาที่บันทึกไว้</h4>
+                <h3>ตารางเวลาที่บันทึกไว้</h3>
                 {isLoading && <p className="loading-text">...กำลังโหลดข้อมูล...</p>}
                 {!isLoading && pastScheduleData.length === 0 && <p className="loading-text">ไม่มีตารางเวลาในอดีต หรือข้อมูลไม่มี Timestamp</p>}
                 
@@ -426,7 +426,7 @@ const ThaiCalendarApp = () => {
                         <>
                             <strong>งวดที่ : </strong> {item.id} ,  
                             <strong> วันที่ : </strong> {item.date} ,
-                            <strong> เวลาปิด : </strong> {item.time} 
+                            <strong> เวลาปิดรับ : </strong> {item.time} 
                         </>
                     );
                     
@@ -436,7 +436,10 @@ const ThaiCalendarApp = () => {
                         <div key={index} className={className}>
                             {/* Conditional Rendering: H1 for index 0, P for others */}
                             {index === 0 ? (
-                                <b><u>{content}</u></b>
+                              
+                                <h4><b><u>{content} </u> <a href={`th-reward?id=${item.id}`} className="reward-link">
+    (ประกาศผล)
+  </a></b></h4>
                             ) : (
                                 <p>{content}</p>
                             )}
