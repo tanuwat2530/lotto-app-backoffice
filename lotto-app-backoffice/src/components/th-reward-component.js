@@ -3,34 +3,49 @@ import React, { useState,useEffect } from 'react';
 import '../styles/th-reward-page.css'; // 1. Import the CSS file
 
 function ThReward() {
-  const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
-  const adminUser = process.env.NEXT_PUBLIC_ADMIN_USER; 
-  const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;   
-  const [inputs, setInputs] = useState({
-    number1: '',
-    number2: '',
-    number21: '',
-    number22: '',
-    number31: '',
-    number32: '',
-  });
-  const [title, setTitle] = useState('');
-  
+    const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
+    const adminUser = process.env.NEXT_PUBLIC_ADMIN_USER; 
+    const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS;   
 
+    const [updateId,setUpdateId] = useState(0)
+    const [inputs, setInputs] = useState({
+        number1: '',
+        number2: '',
+        number21: '',
+        number22: '',
+        number31: '',
+        number32: '',
+    });
+    const [title, setTitle] = useState('');
   
   useEffect(() =>{
 
+    if (typeof window === 'undefined') {
+      // Handle Server-Side Rendering (SSR) if applicable (e.g., Next.js)
+      setError("Cannot access URL on the server.");
+      setIsLoading(false);
+      return;
+    }
+
+    // 2. Access the raw query string from the browser's location object
+    const queryString = window.location.search; // Returns "?id=19"
+
+    // 3. Use the native URLSearchParams API to parse the string
+    const params = new URLSearchParams(queryString);
+
+    // 4. Get the value for the 'id' key
+    const idFromUrl = params.get('id'); // Value: "19"
+    setUpdateId(parseInt(idFromUrl, 10) )
       let user = sessionStorage.getItem("admin_user");
       let pass = sessionStorage.getItem("admin_pass");
       if(user !== adminUser || pass !== adminPass)
       {
         window.location.replace('/admin-login')
       }
-  const scheduleAPI = `${apiUrl}/bff-lotto-app/backoffice/th-schedule`;
+    const scheduleAPI = `${apiUrl}/bff-lotto-app/backoffice/th-schedule`;
    // FIX: Define an inner async function and call it immediately.
     const fetchSchedule = async () => {
      
-    const scheduleAPI = `${apiUrl}/bff-lotto-app/backoffice/th-schedule`;
      try {
         // Use POST only if the backend requires it, otherwise GET is typical for fetches
         const response = await fetch(scheduleAPI,{
@@ -75,12 +90,13 @@ function ThReward() {
     setInputs({
     number1: finalData.data[0].reward_1,
     number2: finalData.data[0].reward_2,
-    number21: finalData.data[0].reward_3,
-    number22: finalData.data[0].reward_4,
-    number31: finalData.data[0].reward_5,
-    number32: finalData.data[0].reward_6,
+    number31: finalData.data[0].reward_3,
+    number32: finalData.data[0].reward_4,
+    number21: finalData.data[0].reward_5,
+    number22: finalData.data[0].reward_6,
 });
-           
+
+
         } else {
             console.warn('API response structure unexpected (missing code 200 or array data):', finalData);
             
@@ -100,6 +116,9 @@ function ThReward() {
       }
     };
     fetchSchedule(); 
+
+
+
   }, []); // Empty dependency array means this runs only on mount
 
   const handleInputChange = (event) => {
@@ -110,25 +129,73 @@ function ThReward() {
     }));
   };
 
-  const handleSubmit = (event) => {
+
+// FIX 1: The function must be declared as 'async' to use 'await'.
+const handleSubmit = async (event) => { 
     event.preventDefault();
-
-    const numbers = {
-      n1: Number(inputs.number1),
-      n2: Number(inputs.number2),
-      n31: Number(inputs.number31),
-      n32: Number(inputs.number32),
-      n21: Number(inputs.number21),
-      n22: Number(inputs.number22),
-                  
+    
+    // Check if ID is available before submitting
+    if (!updateId) {
+        console.error("Cannot submit: Update ID is missing.");
+        return;
+    }
+    
+    const updatePayload = {
+      // FIX 2: Ensure updateId is defined and available in scope
+      id: updateId, 
+      reward_1: Number(inputs.number1),
+      reward_2: Number(inputs.number2),
+      reward_31: Number(inputs.number31), 
+      reward_32: Number(inputs.number32), 
+      reward_21: Number(inputs.number21),
+      reward_22: Number(inputs.number22),     
     };
+const rewardAPI = `${apiUrl}/bff-lotto-app/backoffice/th-reward`;
+console.log(JSON.stringify(updatePayload))
+    try {
+        const response = await fetch(rewardAPI, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // FIX 3: Use the correctly named payload: updatePayload
+            body: JSON.stringify(updatePayload), 
+        });
 
-    console.log('Form Submitted!');
-    console.log('Parsed numbers:', numbers);
+        if (!response.ok) {
+            // Attempt to read error message from the response body
+            const errorText = await response.text();
+            let errorMessage = `HTTP error! Status: ${response.status}.`;
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage += ` Message: ${errorJson.message || errorText}`;
+            } catch (e) {
+                errorMessage += ` Body: ${errorText}`;
+            }
+            throw new Error(errorMessage);
+        }
 
-    // Optional: Clear the form after submission
-    // setInputs({ number1: '', number2: '', number3: '', number4: '' });
-  };
+        // Handle success response (check for content before parsing)
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            const data = await response.json();
+            console.log("Reward update successful (with JSON data):", data);
+            // Optionally handle success notification or redirect here
+            alert("บันทึกสำเร็จ")
+             window.location.replace('th-calendar');
+           
+        } else {
+            console.log("Reward update successful (no JSON content).");
+            // Optionally handle success notification or redirect here
+            
+        }
+
+    } catch (error) {
+        console.error("Failed to submit reward data:", error.message);
+        // Display an error to the user
+        alert(`Submission failed: ${error.message}`);
+    }
+};
 
   // 2. Use className instead of inline styles
   return (

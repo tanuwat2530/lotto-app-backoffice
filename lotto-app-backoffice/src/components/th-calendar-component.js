@@ -1,4 +1,5 @@
 import React, { useState,useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/th-calendar-page-style.css'; // Import the dedicated CSS file
 
 
@@ -140,6 +141,7 @@ const ThaiCalendarApp = () => {
         // FIX: Check for the 'data' field expected from the Go service (code: "200", data: [...])
         if (finalData.code === "200" && Array.isArray(finalData.data)) {
             setScheduleData(finalData.data);
+            
         } else {
             console.warn('API response structure unexpected (missing code 200 or array data):', finalData);
             setScheduleData([]); 
@@ -325,13 +327,20 @@ const ThaiCalendarApp = () => {
 
   const thaiDayNames = getThaiDayNames();
 
-// --- New Logic for Filtering Past Events ---
-  const currentTimestampSec = Math.floor(Date.now() / 1000);
+// --- New Logic for Filtering Past Events ---// 1. Get the current Date object. This is based on the user's local timezone.
+const now = new Date();
+
+// 2. Set the hours, minutes, seconds, and milliseconds to zero.
+// This effectively truncates the time to 00:00:00 in the *local* timezone.
+now.setHours(0, 0, 0, 0);
+
+// 3. Convert the resulting Date object back to a Unix timestamp in seconds.
+const startOfDayTimestampSec = Math.floor(now.getTime() / 1000);
 
   const pastScheduleData = scheduleData.filter(item => {
     // We assume 'item.timestamp' exists in the fetched data and is in seconds.
     // We use parseInt just in case it comes back as a string.
-    return item.timestamp && parseInt(item.timestamp, 10) >= currentTimestampSec;
+    return item.timestamp && parseInt(item.timestamp, 10) >= startOfDayTimestampSec;
   });
   // ------------------------------------------
   return (
