@@ -1,7 +1,5 @@
 import React, { useState,useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import '../styles/th-calendar-page-style.css'; // Import the dedicated CSS file
-import "../globals.css";
+
 
 const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
 const adminUser = process.env.NEXT_PUBLIC_ADMIN_USER; 

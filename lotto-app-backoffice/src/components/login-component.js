@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles/login-page-style.css'; // Import the CSS file
+
 
 // Component now accepts a prop: onLoginSuccess
 const LoginPage = ({ onLoginSuccess }) => {
