@@ -1,6 +1,7 @@
 // NumberInputForm.jsx
 import React, { useState,useEffect } from 'react';
 import '../styles/th-reward-page.css'; // 1. Import the CSS file
+import "../globals.css";
 
 function ThReward() {
     const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 

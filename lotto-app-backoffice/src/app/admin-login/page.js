@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import React from 'react';
 import LoginComponent from "../../components/login-component"
+import "../globals.css";
 
 
 export default function LoginPage() {
