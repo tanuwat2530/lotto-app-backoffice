@@ -36,8 +36,13 @@ if [ $? -ne 0 ]; then
 fi
 echo "Dependencies installed successfully."
 
-# --- Step 2: Kill Existing BACKOFFICE Process ---
-echo "2. Checking for existing application processes..."
+
+# --- Step 1: Install Dependencies ---
+echo "2. Running 'yarn build' to ensure dependencies are up to date..."
+yarn build
+
+# --- Step 2: Kill Existing BFF Process ---
+echo "3. Checking for existing application processes..."
 
 # Find the PID of the running application using pgrep and the process identifier.
 # The -f flag searches the full command line, which is essential for node/yarn processes.
@@ -63,7 +68,7 @@ else
 fi
 
 # --- Step 3 & 4: Run Application in Background and Redirect Output ---
-echo "3. Starting new application instance using '${START_COMMAND}' in the background."
+echo "4. Starting new application instance using '${START_COMMAND}' in the background."
 
 # Clear previous log file content (optional: remove > if you prefer appending to logs)
 > "${LOG_FILE}"
