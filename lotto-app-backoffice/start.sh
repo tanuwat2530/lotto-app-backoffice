@@ -44,28 +44,31 @@ yarn build
 # --- Step 2: Kill Existing BFF Process ---
 echo "3. Checking for existing application processes..."
 
-# Find the PID of the running application using pgrep and the process identifier.
-# The -f flag searches the full command line, which is essential for node/yarn processes.
-PID=$(pgrep -f "${BACKOFFICE_LOTTO_APP}")
+# Use lsof to find the PID listening on TCP port 4000.
+# lsof -t -i :4000 returns only the PID(s).
+PID_BY_PORT=$(sudo lsof -t -i :4000)
 
-if [ -n "$PID" ]; then
-    echo "Found running process(es) associated with '${BACKOFFICE_LOTTO_APP}' (PID(s): $PID). Killing gracefully..."
+if [ -n "$PID_BY_PORT" ]; then
+    echo "Found running process(es) on port 4000 (PID(s): $PID_BY_PORT). Killing gracefully..."
+    
     # Terminate the process gently (SIGTERM)
-    kill $PID
+    kill $PID_BY_PORT
     
     # Wait a few seconds for cleanup
     sleep 5
     
     # Check if the process is still running and force kill if necessary (SIGKILL)
-    if pgrep -f "${BACKOFFICE_LOTTO_APP}" > /dev/null; then
+    # Note: We re-run lsof to see if the process is truly gone.
+    if sudo lsof -t -i :4000 > /dev/null; then
         echo "Process(es) did not shut down. Force killing (SIGKILL)..."
-        kill -9 $PID
+        kill -9 $PID_BY_PORT
     fi
     
     echo "Existing process(es) terminated."
 else
-    echo "No existing process found. Continuing."
+    echo "No existing process found on port 4000. Continuing."
 fi
+
 
 # --- Step 3 & 4: Run Application in Background and Redirect Output ---
 echo "4. Starting new application instance using '${START_COMMAND}' in the background."
