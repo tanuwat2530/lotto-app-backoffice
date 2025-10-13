@@ -1,7 +1,7 @@
-// next.config.js (ES Module)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ... your config
+        basePath: '/app',
+        assetPrefix: '/app/',
 };
 
-export default nextConfig; // <-- Use export default
+export default nextConfig;

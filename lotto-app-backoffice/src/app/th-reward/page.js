@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React from 'react';
-import ThRewardComponent from "../../components/th-reward-component"
+import ThRewardComponent from "../components/th-reward-component"
 import '../../styles/th-reward-page.css'; // 1. Import the CSS file
 
 

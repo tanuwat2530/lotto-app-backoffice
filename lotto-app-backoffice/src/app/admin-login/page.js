@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React from 'react';
-import LoginComponent from "../../components/login-component"
+import LoginComponent from "../components/login-component"
 import '../../styles/login-page-style.css'; // Import the CSS file
 
 export default function LoginPage() {
