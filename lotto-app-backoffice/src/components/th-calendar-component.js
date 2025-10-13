@@ -152,7 +152,7 @@ const ThaiCalendarApp = () => {
       }
      
       } catch (err) {
-        console.error("Fetch schedule failed:", err);
+       // console.error("Fetch schedule failed:", err);
         // Display error using the custom modal
         setSubmissionStatus({
             show: true,
@@ -229,7 +229,7 @@ const ThaiCalendarApp = () => {
     };
 
     try {
-      console.log('Sending data to API:', ENDPOINT, dataPayload);
+    //  console.log('Sending data to API:', ENDPOINT, dataPayload);
       
       const response = await fetch(ENDPOINT, {
         method: 'POST',

@@ -11,10 +11,10 @@ function ThReward() {
     const [inputs, setInputs] = useState({
         number1: '',
         number2: '',
-        number21: '',
-        number22: '',
-        number31: '',
-        number32: '',
+        number3: '',
+        number4: '',
+        number5: '',
+        number6: '',
     });
     const [title, setTitle] = useState('');
   
@@ -90,10 +90,10 @@ function ThReward() {
     setInputs({
     number1: finalData.data[0].reward_1,
     number2: finalData.data[0].reward_2,
-    number31: finalData.data[0].reward_3,
-    number32: finalData.data[0].reward_4,
-    number21: finalData.data[0].reward_5,
-    number22: finalData.data[0].reward_6,
+    number3: finalData.data[0].reward_3,
+    number4: finalData.data[0].reward_4,
+    number5: finalData.data[0].reward_5,
+    number6: finalData.data[0].reward_6,
 });
 
 
@@ -143,15 +143,14 @@ const handleSubmit = async (event) => {
     const updatePayload = {
       // FIX 2: Ensure updateId is defined and available in scope
       id: updateId, 
-      reward_1: Number(inputs.number1),
-      reward_2: Number(inputs.number2),
-      reward_31: Number(inputs.number31), 
-      reward_32: Number(inputs.number32), 
-      reward_21: Number(inputs.number21),
-      reward_22: Number(inputs.number22),     
+      reward_1: inputs.number1,
+      reward_2: inputs.number2,
+      reward_3: inputs.number3, 
+      reward_4: inputs.number4, 
+      reward_5: inputs.number5,
+      reward_6: inputs.number6,     
     };
 const rewardAPI = `${apiUrl}/bff-lotto-app/backoffice/th-reward`;
-console.log(JSON.stringify(updatePayload))
     try {
         const response = await fetch(rewardAPI, {
             method: 'POST',
@@ -179,10 +178,10 @@ console.log(JSON.stringify(updatePayload))
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.indexOf("application/json") !== -1) {
             const data = await response.json();
-            console.log("Reward update successful (with JSON data):", data);
+            //console.log("Reward update successful (with JSON data):", data);
             // Optionally handle success notification or redirect here
             alert("บันทึกสำเร็จ")
-             window.location.replace('th-calendar');
+            // window.location.replace('th-calendar');
            
         } else {
             console.log("Reward update successful (no JSON content).");
@@ -221,8 +220,7 @@ console.log(JSON.stringify(updatePayload))
         </div>
 
          <div className="input-group">
-          <label>2 ตัวบน :</label>
-        
+          <label>3 ตัวโต๊ด :</label>
           <input
             type="number"
             id="number2"
@@ -235,23 +233,25 @@ console.log(JSON.stringify(updatePayload))
         </div>
 
         <div className="input-group">
-          <label>3 ตัวล่าง :</label>
+          <label>2 ตัวบน :</label>
           
           <input
             type="number"
-            id="number31"
-            name="number31"
-            value={inputs.number31}
+            id="number3"
+            name="number3"
+            value={inputs.number3}
             onChange={handleInputChange}
             required
             className="number-input"
           />
 
+ <label>2 ตัวล่าง :</label>
            <input
+           
             type="number"
-            id="number32"
-            name="number32"
-            value={inputs.number32}
+            id="number4"
+            name="number4"
+            value={inputs.number4}
             onChange={handleInputChange}
             required
             className="number-input"
@@ -261,21 +261,22 @@ console.log(JSON.stringify(updatePayload))
        
 
         <div className="input-group">
-          <label>2 ตัวล่าง :</label>
+          <label>วิ่งบน :</label>
           <input
             type="number"
-            id="number21"
-            name="number21"
-            value={inputs.number21}
+            id="number5"
+            name="number5"
+            value={inputs.number5}
             onChange={handleInputChange}
             required
             className="number-input"
           />
+          <label>วิ่งล่าง :</label>
            <input
             type="number"
-            id="number22"
-            name="number22"
-            value={inputs.number22}
+            id="number6"
+            name="number6"
+            value={inputs.number6}
             onChange={handleInputChange}
             required
             className="number-input"
