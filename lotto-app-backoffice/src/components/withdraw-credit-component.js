@@ -16,7 +16,7 @@ const WithdrawCredit = () => {;
       let pass = sessionStorage.getItem("admin_pass");
       if(user !== adminUser || pass !== adminPass)
       {
-        window.location.replace('/admin-login')
+        window.location.replace('/app/admin-login')
       }
 
     if (typeof window !== 'undefined') {

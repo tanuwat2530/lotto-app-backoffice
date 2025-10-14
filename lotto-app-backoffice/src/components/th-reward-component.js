@@ -40,7 +40,7 @@ function ThReward() {
       let pass = sessionStorage.getItem("admin_pass");
       if(user !== adminUser || pass !== adminPass)
       {
-        window.location.replace('/admin-login')
+        window.location.replace('/app/admin-login')
       }
     const scheduleAPI = `${apiUrl}/bff-lotto-app/backoffice/th-schedule`;
    // FIX: Define an inner async function and call it immediately.
