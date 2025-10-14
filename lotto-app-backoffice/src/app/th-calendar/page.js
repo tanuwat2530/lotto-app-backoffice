@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React from 'react';
-import ThCalendarComponent from "../components/th-calendar-component"
+import ThCalendarComponent from "../../components/th-calendar-component"
 import '../../styles/th-calendar-page-style.css'; // Import the dedicated CSS file
 
 

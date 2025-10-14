@@ -2,18 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import React from 'react';
-import ThRewardComponent from "../../components/th-reward-component"
-import '../../styles/th-reward-page.css'; // 1. Import the CSS file
+import AddCredit from "../../components/add-credit-component"
+import '../../styles/add-credit-style.css'; // Import the CSS file
 
-
-export default function ThCalendarPage() {
+export default function AddCreditPage() {
   const router = useRouter();
   return (
     
       <div>
     
       <main>
-          <ThRewardComponent/>
+          <AddCredit/>
          
       </main>
 

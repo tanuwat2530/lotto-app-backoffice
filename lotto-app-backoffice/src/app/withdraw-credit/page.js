@@ -2,18 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import React from 'react';
-import ThRewardComponent from "../../components/th-reward-component"
-import '../../styles/th-reward-page.css'; // 1. Import the CSS file
-
-
-export default function ThCalendarPage() {
+import WithdrawCredit from "../../components/withdraw-credit-component"
+import '../../styles/withdraw-credit-style.css'; // Import the CSS file
+export default function WithdrawCreditPage() {
   const router = useRouter();
   return (
     
       <div>
     
       <main>
-          <ThRewardComponent/>
+          <WithdrawCredit/>
          
       </main>
 
