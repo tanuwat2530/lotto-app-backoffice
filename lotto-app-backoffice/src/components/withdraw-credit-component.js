@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 
 const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
-const adminUser = process.env.NEXT_PUBLIC_ADMIN_USER; 
-const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS; 
+const secretSign = process.env.SECRET_SIGN; 
+
 const WithdrawCredit = () => {;
   const [memberId, setMemberId] = useState('');
   const [credit, setCredit] = useState('');
@@ -11,14 +11,11 @@ const WithdrawCredit = () => {;
 
   // Use useEffect to parse the URL query parameters when the component mounts
   useEffect(() => {
-
-      let user = sessionStorage.getItem("admin_user");
-      let pass = sessionStorage.getItem("admin_pass");
-      if(user !== adminUser || pass !== adminPass)
-      {
-        window.location.replace('/app/admin-login')
-      }
-
+    if(params.get('secret_sign') !== secretSign)
+    {
+      window.location.replace('/app/admin-login');
+    }
+    
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       setMemberId(params.get('member_id') || '');
@@ -29,38 +26,38 @@ const WithdrawCredit = () => {;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (memberId && credit && secretSign && orderId) {
-    //     let alert_message = "ล้มเหลว"; // Initialize with a default value
-    //     let apiData = null; // Variable to hold the parsed API response data
+    if (memberId && credit && secretSign && orderId) {
+        let alert_message = "ล้มเหลว"; // Initialize with a default value
+        let apiData = null; // Variable to hold the parsed API response data
 
-    //     try {
-    //         // NOTE: Replace with your actual withdrawal API endpoint
-    //         const response = await fetch(`${apiUrl}/bff-lotto-app/promtpay-credit`, {
-    //             method: 'POST',
-    //             headers: { 'Content-Type': 'application/json' },
-    //             body: JSON.stringify({
-    //                 member_id: memberId,
-    //                 credit: credit,
-    //                 secret_sign: secretSign,
-    //                 order_id: orderId,
-    //             }),
-    //         });
+        try {
+            // NOTE: Replace with your actual withdrawal API endpoint
+            const response = await fetch(`${apiUrl}/bff-lotto-app/promtpay-credit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    member_id: memberId,
+                    credit: credit,
+                    secret_sign: secretSign,
+                    order_id: orderId,
+                }),
+            });
 
-    //         apiData = await response.json(); // Store the parsed data
-    //         console.log('API Response:', apiData);
+            apiData = await response.json(); // Store the parsed data
+            console.log('API Response:', apiData);
 
-    //         if (apiData && apiData.message === "success") {
-    //             alert_message = "สำเร็จ"; // Update the message on success
-    //         }
-    //     } catch (e) {
-    //         console.error('API call failed:', e);
-    //     } finally {
-    //         console.log("API call finished.");
-    //         alert(alert_message); // Use the variable to display the alert
-    //     }
-    // } else {
-    //     alert('Missing required parameters from the URL.');
-    // }
+            if (apiData && apiData.message === "success") {
+                alert_message = "สำเร็จ"; // Update the message on success
+            }
+        } catch (e) {
+            console.error('API call failed:', e);
+        } finally {
+            console.log("API call finished.");
+            alert(alert_message); // Use the variable to display the alert
+        }
+    } else {
+        alert('Missing required parameters from the URL.');
+    }
 };
 
   return (

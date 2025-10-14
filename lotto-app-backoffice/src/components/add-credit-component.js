@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
-const adminUser = process.env.NEXT_PUBLIC_ADMIN_USER; 
-const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASS; 
 const AddCredit = () => {
   const [memberId, setMemberId] = useState('');
   const [credit, setCredit] = useState('');
@@ -12,14 +10,12 @@ const AddCredit = () => {
   // Use useEffect to parse the URL query parameters when the component mounts
   useEffect(() => {
 // --- FETCH SCHEDULE DATA ON MOUNT (FIXED) ---
+    if(params.get('secret_sign') !== secretSign)
+{
+  window.location.replace('/app/admin-login');
+}
 
-      let user = sessionStorage.getItem("admin_user");
-      let pass = sessionStorage.getItem("admin_pass");
-      if(user !== adminUser || pass !== adminPass)
-      {
-        window.location.replace('/app/admin-login')
-      }
-
+     
      if (typeof window !== 'undefined') {
     const params = new URLSearchParams(window.location.search);
     setMemberId(params.get('member_id') || '');
