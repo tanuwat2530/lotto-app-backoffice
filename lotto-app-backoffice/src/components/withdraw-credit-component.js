@@ -1,113 +1,92 @@
 import React, { useState, useEffect } from 'react';
+import { Copy } from 'lucide-react'; // ✅ lightweight icon library
 
+const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL;
+const secretSign = process.env.NEXT_PUBLIC_SECRET_SIGN;
 
-const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
-const secretSign = process.env.NEXT_PUBLIC_SECRET_SIGN; 
-
-const WithdrawCredit = () => {;
+const WithdrawCredit = () => {
   const [memberId, setMemberId] = useState('');
   const [credit, setCredit] = useState('');
-  const [orderId, setOrderId] = useState('');
-
-  // Use useEffect to parse the URL query parameters when the component mounts
+  const [copyMessage, setCopyMessage] = useState('');
+  const [accName, setAccName] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [accNumber, setAccNumber] = useState('');
+ 
   useEffect(() => {
-
     const params = new URLSearchParams(window.location.search);
-    if(params.get('secret_sign') !== secretSign)
-    {
+
+    if (params.get('secret_sign') !== secretSign) {
       window.location.replace('/app/admin-login');
     }
-    
-    if (typeof window !== 'undefined') {
 
+    if (typeof window !== 'undefined') {
       setMemberId(params.get('member_id') || '');
       setCredit(params.get('credit') || '');
-      setOrderId(params.get('order_id') || '');
+      setAccName(params.get('account_name') || '');
+      setAccNumber(params.get('account_number') || '');
+      setBankName(params.get('bank_name') || '');
     }
-  }, []); // Empty dependency array to run once on mount
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (memberId && credit && secretSign && orderId) {
-        let alert_message = "ล้มเหลว"; // Initialize with a default value
-        let apiData = null; // Variable to hold the parsed API response data
-
-        try {
-            // NOTE: Replace with your actual withdrawal API endpoint
-            const response = await fetch(`${apiUrl}/bff-lotto-app/promtpay-credit`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    member_id: memberId,
-                    credit: credit,
-                    secret_sign: secretSign,
-                    order_id: orderId,
-                }),
-            });
-
-            apiData = await response.json(); // Store the parsed data
-            console.log('API Response:', apiData);
-
-            if (apiData && apiData.message === "success") {
-                alert_message = "สำเร็จ"; // Update the message on success
-            }
-        } catch (e) {
-            console.error('API call failed:', e);
-        } finally {
-            console.log("API call finished.");
-            alert(alert_message); // Use the variable to display the alert
-        }
-    } else {
-        alert('Missing required parameters from the URL.');
-    }
-};
+  const handleCopy = (value) => {
+    navigator.clipboard.writeText(value);
+    setCopyMessage('คัดลอกสำเร็จ!');
+    setTimeout(() => setCopyMessage(''), 1500);
+  };
 
   return (
     <div className="withdraw-page">
-  <div className="withdraw-container">
-    <form onSubmit={handleSubmit} className="withdraw-form">
-      <h2 className="withdraw-title">ตรวจสอบยอด ก่อนถอนเงินให้ลูกค้า</h2>
+      <div className="withdraw-container">
+        <form className="withdraw-form">
+          <h2 className="withdraw-title">ตรวจสอบยอด ก่อนถอนเงิน</h2>
 
-      <div className="form-group">
-        <label htmlFor="memberId" className="form-label">Member ID:</label>
-        <input
-          type="text"
-          id="memberId"
-          value={memberId}
-          readOnly
-          className="form-input"
-        />
+          <div className="form-group">
+            <label htmlFor="memberId" className="form-label">Member ID:</label>
+            <div className="input-with-icon">
+              <input
+                type="text"
+                id="memberId"
+                value={memberId}
+                readOnly
+                className="form-input"
+              />
+             
+            </div>
+          </div>
+
+          <br />
+          <h2 className="withdraw-title">คัดลอกข้อมูลด้านล่างเท่านั้น</h2>
+
+          {[
+            { label: 'หมายเลขบัญชี:', value: accNumber },
+            { label: 'ชื่อบัญชี:', value: accName },
+            { label: 'ธนาคาร:', value: bankName },
+            { label: 'ยอดถอน:', value: credit },
+          ].map((item, index) => (
+            <div className="form-group" key={index}>
+              <label className="form-label">{item.label}</label>
+              <div className="input-with-icon">
+                <input
+                  type="text"
+                  value={item.value}
+                  readOnly
+                  className="form-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleCopy(item.value)}
+                  className="copy-btn"
+                >
+                  <Copy size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {copyMessage && <div className="copy-message">{copyMessage}</div>}
+        </form>
       </div>
-
-      <div className="form-group">
-        <label htmlFor="credit" className="form-label">Credit ที่เหลือ:</label>
-        <input
-          type="text"
-          id="credit"
-          value={credit}
-          readOnly
-          className="form-input"
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="orderId" className="form-label">Credit ที่ต้องการถอน:</label>
-        <input
-          type="text"
-          id="orderId"
-          value={orderId}
-          readOnly
-          className="form-input"
-        />
-      </div>
-
-      <button type="submit" className="submit-button withdraw-button">
-        ยืนยัน
-      </button>
-    </form>
-  </div>
-</div>
-
+    </div>
   );
 };
 
