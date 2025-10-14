@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 
 const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
-const secretSign = process.env.SECRET_SIGN; 
+const secretSign = process.env.NEXT_PUBLIC_SECRET_SIGN; 
 
 const WithdrawCredit = () => {;
   const [memberId, setMemberId] = useState('');
@@ -11,13 +11,15 @@ const WithdrawCredit = () => {;
 
   // Use useEffect to parse the URL query parameters when the component mounts
   useEffect(() => {
+
+    const params = new URLSearchParams(window.location.search);
     if(params.get('secret_sign') !== secretSign)
     {
       window.location.replace('/app/admin-login');
     }
     
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
+
       setMemberId(params.get('member_id') || '');
       setCredit(params.get('credit') || '');
       setOrderId(params.get('order_id') || '');

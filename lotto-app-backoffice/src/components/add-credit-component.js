@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
 const apiUrl = process.env.NEXT_PUBLIC_BFF_API_URL; 
+const secretSign = process.env.NEXT_PUBLIC_SECRET_SIGN; 
 const AddCredit = () => {
   const [memberId, setMemberId] = useState('');
   const [credit, setCredit] = useState('');
-  const [secretSign, setSecretSign] = useState('');
   const [orderId, setOrderId] = useState('');
   
   // Use useEffect to parse the URL query parameters when the component mounts
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
 // --- FETCH SCHEDULE DATA ON MOUNT (FIXED) ---
     if(params.get('secret_sign') !== secretSign)
 {
@@ -17,10 +18,9 @@ const AddCredit = () => {
 
      
      if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search);
+   
     setMemberId(params.get('member_id') || '');
     setCredit(params.get('credit') || '');
-    setSecretSign(params.get('secret_sign') || '');
     setOrderId(params.get('order_id') || '');
   }
   }, []); // Empty dependency array to run once on mount
