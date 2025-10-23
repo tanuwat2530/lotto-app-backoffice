@@ -145,11 +145,12 @@ const handleSubmit = async (event) => {
       id: updateId, 
       reward_1: inputs.number1,
       reward_2: inputs.number2,
-      reward_3: inputs.number3, 
+      reward_3: inputs.number1.slice(-2), 
       reward_4: inputs.number4, 
-      reward_5: inputs.number5,
-      reward_6: inputs.number6,     
+      reward_5: inputs.number1,
+      reward_6: inputs.number4,     
     };
+    console.log(JSON.stringify(updatePayload))
 const rewardAPI = `${apiUrl}/bff-lotto-app/backoffice/th-reward`;
     try {
         const response = await fetch(rewardAPI, {
@@ -207,7 +208,7 @@ const rewardAPI = `${apiUrl}/bff-lotto-app/backoffice/th-reward`;
       <form onSubmit={handleSubmit}>
        
         <div className="input-group">
-          <label>​3 ตัวบน :</label>
+          <label>​3 ตัวบน (ล๊อตเตอรี่ รางวัลที่ 1 สามตัวท้าย)</label>
           <input
             type="number"
             id="number1"
@@ -218,40 +219,37 @@ const rewardAPI = `${apiUrl}/bff-lotto-app/backoffice/th-reward`;
             className="number-input"
           />
         </div>
-
+        <div className="input-group">
+        <label>2 ตัวล่าง (ล๊อตเตอรี่ เลขท้าย 2 ตัว)</label>
+           <input
+            type="number"
+            id="number4"
+            name="number4"
+            value={inputs.number4}
+            onChange={handleInputChange}
+            required
+            className="number-input"
+          />
+          </div>
          <div className="input-group">
-          <label>3 ตัวโต๊ด :</label>
+          <label>3 ตัวโต๊ด (อัตโนมัติ)</label>
           <input
             type="number"
             id="number2"
             name="number2"
-            value={inputs.number2}
+            value={inputs.number1}
             onChange={handleInputChange}
             required
             className="number-input"
           />
         </div>
-
         <div className="input-group">
-          <label>2 ตัวบน :</label>
-          
+          <label>2 ตัวบน (อัตโนมัติ)</label>
           <input
             type="number"
             id="number3"
             name="number3"
-            value={inputs.number3}
-            onChange={handleInputChange}
-            required
-            className="number-input"
-          />
-
- <label>2 ตัวล่าง :</label>
-           <input
-           
-            type="number"
-            id="number4"
-            name="number4"
-            value={inputs.number4}
+            value={inputs.number1.slice(-2)}
             onChange={handleInputChange}
             required
             className="number-input"
@@ -261,22 +259,25 @@ const rewardAPI = `${apiUrl}/bff-lotto-app/backoffice/th-reward`;
        
 
         <div className="input-group">
-          <label>วิ่งบน :</label>
+          <label>วิ่งบน (อัตโนมัติ)</label>
           <input
             type="number"
             id="number5"
             name="number5"
-            value={inputs.number5}
+            value={inputs.number1}
             onChange={handleInputChange}
             required
             className="number-input"
           />
-          <label>วิ่งล่าง :</label>
+          </div>
+
+        <div className="input-group">
+          <label>วิ่งล่าง (อัตโนมัติ)</label>
            <input
             type="number"
             id="number6"
             name="number6"
-            value={inputs.number6}
+            value={inputs.number4}
             onChange={handleInputChange}
             required
             className="number-input"
